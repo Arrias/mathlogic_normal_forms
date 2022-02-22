@@ -1,4 +1,5 @@
 module Formula where
+import Test.QuickCheck
 
 data Formula = Atom { _name :: String } 
 			 | Not Formula  
@@ -7,10 +8,10 @@ data Formula = Atom { _name :: String }
 			 | Formula :-> Formula 
 			 | Formula :<->: Formula
 
-infixl 7 `And`
-infixl 7 :->
-infixl 7 :<->:
-infixl 6 `Or`
+infixr 7 `And`
+infixr 7 :->
+infixr 7 :<->:
+infixr 6 `Or`
 
 instance Show Formula where
 	showsPrec p f = case f of 
@@ -32,3 +33,5 @@ p3 = (Atom "p3")
 sampleOr = (Atom "p1") `Or` (Atom "p2")
 sample1 = Not (p1 `Or` p2)
 sample3 = Not (p1 `And` p2) `And` p3
+sample4 = p1 :-> p2 `And` p3
+
