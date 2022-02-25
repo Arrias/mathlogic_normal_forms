@@ -3,9 +3,12 @@ import Formula
 
 -- rewrite formula without (->) and (<->)
 simplify :: Formula -> Formula
-simplify (Atom s) = Atom s
-simplify (Not f) = Not (simplify f)
-simplify (a `Or` b) = (simplify a) `Or` (simplify b)
-simplify (a `And` b) = (simplify a) `And` (simplify b)
-simplify (a :-> b) = simplify $ (Not a) `Or` b
-simplify (a :<->: b) = simplify $ (a :-> b) `And` (b :-> a)
+simplify f = case f of 
+            Atom s -> Atom s 
+            Not f -> Not (simplify f)
+            (a `Or` b) -> (simplify a) `Or` (simplify b)
+            (a `And` b) -> (simplify a) `And` (simplify b)
+            (a :-> b) -> simplify $ (Not a) `Or` b
+            (a :<->: b) -> simplify $ (a :-> b) `And` (b :-> a)
+
+

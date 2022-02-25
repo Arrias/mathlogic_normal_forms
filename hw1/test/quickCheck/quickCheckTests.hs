@@ -8,8 +8,18 @@ import NNF
 import Test.QuickCheck
 import Test.QuickCheck.All
 
-vars_names = [(x:y:[]) | x <- ['a'..'z'], y <- ['a'..'z']]
+vars_names = fmap (\x -> show x) ['a'..'f'] 
 ln = pred $ length vars_names 
+
+formula_variants f1 f2 = [(3, f1 `And` f2),
+                          (3, f1 `Or` f2),
+                          (1, f1 :-> f2),
+                          (1, f1 :<->: f2),
+                          (3, Not f1),
+                          (3, f2 `And` f1),
+                          (3, f2 `Or` f1),
+                          (1, f2 :-> f1),
+                          (1, f2 :<->: f1)]
 
 instance (Arbitrary Formula) where
     arbitrary :: Gen Formula
@@ -21,15 +31,7 @@ instance (Arbitrary Formula) where
                                     small <- choose(0, n - 1)
                                     f1 <- (resize (pred n) arbitrary)
                                     f2 <- (resize small arbitrary)
-                                    oneof $ fmap return [ f1 `And` f2,
-                                                          f1 `Or` f2,
-                                                          f1 :-> f2,
-                                                          f1 :<->: f2,
-                                                          Not f1,
-                                                          f2 `And` f1,
-                                                          f2 `Or` f1,
-                                                          f2 :-> f1,
-                                                          f2 :<->: f1]
+                                    frequency $ fmap (\(x, y) -> (x, return y)) (formula_variants f1 f2)
 
 checkNNFAlgo x = checkNNF . toNNF $ x
     where types = x :: Formula
@@ -41,3 +43,9 @@ checkDNFAlgo x = checkDNF . toDNF $ x
 checkAllForms formulaSize = 
                     mapM_ (quickCheck . (mapSize $ const formulaSize)) 
                                     [checkNNFAlgo, checkCNFAlgo, checkDNFAlgo]
+
+main :: IO ()
+main = do
+    let formula_height_for_tests = 5
+    putStrLn $ "formula height used: " ++ (show formula_height_for_tests)
+    checkAllForms formula_height_for_tests
