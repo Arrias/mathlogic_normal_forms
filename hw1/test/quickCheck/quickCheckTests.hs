@@ -45,7 +45,7 @@ checkAllForms formulaSize =
                                     [checkNNFAlgo, checkCNFAlgo, checkDNFAlgo]
 
 main :: IO ()
-main = do
+main = do 
     let formula_height_for_tests = 5
     putStrLn $ "formula height used: " ++ (show formula_height_for_tests)
     checkAllForms formula_height_for_tests

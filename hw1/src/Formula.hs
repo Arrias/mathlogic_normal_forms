@@ -1,5 +1,4 @@
 module Formula where
-import Test.QuickCheck
 
 data Formula = Atom { _name :: String } 
 			 | Not Formula  
@@ -7,6 +6,7 @@ data Formula = Atom { _name :: String }
 			 | Formula `And` Formula 
 			 | Formula :-> Formula 
 			 | Formula :<->: Formula
+			 	deriving Eq
 
 infixr 7 `And`
 infixr 7 :->
@@ -26,12 +26,4 @@ instance Show Formula where
 		where formula_show_helper str x y p lim = showParen (p > lim) $ showsPrec l x . showString str . showsPrec l y
 												where l = succ lim
 
-p1 = (Atom "p1")
-p2 = (Atom "p2")
-p3 = (Atom "p3")
-
-sampleOr = (Atom "p1") `Or` (Atom "p2")
-sample1 = Not (p1 `Or` p2)
-sample3 = Not (p1 `And` p2) `And` p3
-sample4 = p1 :-> p2 `And` p3
 

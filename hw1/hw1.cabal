@@ -15,18 +15,30 @@ build-type:          Simple
 extra-source-files:  CHANGELOG.md
 cabal-version:       >=1.10
 
-executable hw1
-  main-is:             Main.hs
-  -- other-modules:
-  -- other-extensions:
-  build-depends:       base >=4.12 && <4.13
-  hs-source-dirs:      src
-  default-language:    Haskell2010
+library source-library
+  exposed-modules: CNF, DNF, Formula, NNF, SF, CheckFunctions
+  build-depends: base >=4.12 && <4.13
+  hs-source-dirs: src
+  default-language:    Haskell2010 
 
-executable quick_check_test_hw1
-  main-is:             quickCheckTests.hs
---  other-modules:       
---  other-extensions:
-  build-depends:       base >=4.12 && <4.13, QuickCheck >=2.14 && <2.15
-  hs-source-dirs:      test/quickCheck, test, src
-  default-language:    Haskell2010          
+executable hw1-quick-check
+  main-is: quickCheckTests.hs
+  type: exitcode-stdio-1.0  
+  build-depends:       
+      base >=4.12 && <4.13,
+      QuickCheck >=2.14 && <2.15, 
+      source-library
+  hs-source-dirs:      test/quickCheck
+  default-language:    Haskell2010       
+
+test-suite hw1-unit-tests
+  main-is: unitTests.hs 
+  hs-source-dirs: test/unitTests 
+  type: exitcode-stdio-1.0     
+  build-depends:    
+        source-library,
+        base >=4.12 && <4.13,
+        tasty-hunit,
+        tasty >=1.4,
+        QuickCheck >=2.14 && <2.15
+  default-language: Haskell2010  

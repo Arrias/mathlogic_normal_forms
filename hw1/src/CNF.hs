@@ -4,10 +4,11 @@ import Formula
 import DNF
 
 swapCons :: Formula -> Formula
-swapCons p@(Atom s) = p 
-swapCons p@(Not f) = p 
-swapCons (a `And` b) = (swapCons a) `Or` (swapCons b)
-swapCons (a `Or` b) = (swapCons a) `And` (swapCons b)
+swapCons f = case f of 
+                    p@(Atom s) -> p 
+                    p@(Not f) -> p 
+                    a `And` b -> (swapCons a) `Or` (swapCons b)
+                    a `Or` b -> (swapCons a) `And` (swapCons b)
 
 toCNF = swapCons . toDNF . swapCons . toNNF 
               
