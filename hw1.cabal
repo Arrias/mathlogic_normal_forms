@@ -17,15 +17,15 @@ cabal-version:       >=1.10
 
 library source-library
   exposed-modules: CNF, DNF, Formula, NNF, SF, CheckFunctions
-  build-depends: base >=4.12 && <4.13
+  build-depends: base >=4.12
   hs-source-dirs: src
   default-language:    Haskell2010 
 
 executable hw1-quick-check
   main-is: quickCheckTests.hs
   build-depends:       
-      base >=4.12 && <4.13,
-      QuickCheck >=2.14 && <2.15, 
+      base >=4.12,
+      QuickCheck >=2.14, 
       source-library
   hs-source-dirs:      test/quickCheck
   default-language:    Haskell2010       
@@ -36,16 +36,16 @@ test-suite hw1-unit-tests
   type: exitcode-stdio-1.0     
   build-depends:    
         source-library,
-        base >=4.12 && <4.13,
+        base >=4.12,
         tasty-hunit,
         tasty >=1.4,
-        QuickCheck >=2.14 && <2.15
+        QuickCheck >=2.14
   default-language: Haskell2010  
 
 executable hw1-app
   main-is: Main.hs 
   build-depends:       
-      base >=4.12 && <4.13,
+      base >=4.12,
       source-library
   hs-source-dirs:      app
   default-language:    Haskell2010   
