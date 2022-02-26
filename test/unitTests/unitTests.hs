@@ -12,7 +12,7 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [tests_simplify, tests_NNF, tests_DNF]
+tests = testGroup "Tests" [tests_simplify, tests_NNF, tests_DNF, tests_Parser]
 
 p1 = (Atom "p1")
 p2 = (Atom "p2")
@@ -85,4 +85,13 @@ tests_CNF = testGroup "CNF"
 
         testCase "OR right distributivity" $ toCNF ((p1 `And` p2) `Or` p3) @?= (p1 `Or` p3) `And` (p2 `Or` p3),
         testCase "OR left distributivity" $ toCNF (p3 `Or` (p1 `And` p2)) @?= (p1 `Or` p3) `And` (p2 `Or` p3)
+    ]
+
+tests_Parser :: TestTree
+tests_Parser = testGroup "Parser"
+    [
+        testCase "Atom" $ (read ("alik") :: Formula) @?= (Atom "alik"),
+        testCase "Double NOT" $ (read ("! ! p") :: Formula) @?= (Not (Not (Atom "p"))),
+        testCase "AND priority" $ (read ("p1 && p2 || p3") :: Formula) @?= p1 `And` p2 `Or` p3,
+        testCase "Hence associativity" $ (read ("p1 -> p2 -> p3") :: Formula) @?= p1 :-> p2 :-> p3
     ]

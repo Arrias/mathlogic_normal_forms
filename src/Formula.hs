@@ -1,6 +1,7 @@
 module Formula where
 
 import Text.Read 
+import Data.List
 
 data Formula = Atom { _name :: String } 
 			 | Not Formula  
@@ -10,6 +11,7 @@ data Formula = Atom { _name :: String }
 			 | Formula :<->: Formula
 			 	deriving Eq
 
+infixr 8 `Not`
 infixr 7 `And`
 infixr 7 :->
 infixr 7 :<->:
@@ -24,49 +26,55 @@ instance Show Formula where
 		(x :-> y) -> showParen True $ (showsPrec 10 x) . showString " -> " . (showsPrec 10 y)
 		(x :<->: y) -> showParen True $ (showsPrec 10 x) . showString " <-> " . (showsPrec 10 y)
 
+type Expr = [String]
+
 -- split string into words
+getWords :: String -> Expr
 getWords ar = case ar of 
 				[] -> []
 				otherwise -> let res = head $ lex ar in (fst res) : (getWords $ snd res)
 
--- find matching bracket for first open bracket 
-prefPsp 1   (")" : xs) = ([], xs)
-prefPsp bal ("(" : xs) = ("(" : (fst res), snd res)
-            where res = prefPsp (bal + 1) xs
-prefPsp bal (")" : xs) = (")" : (fst res), snd res)
-            where res = prefPsp (bal - 1) xs
-prefPsp bal (x   : xs) = ( x  : (fst res), snd res)
-            where res = prefPsp bal xs
+getPriority :: String -> Maybe Int
+getPriority s | (s == "||") = (Just 6)
+			  | (s == "&&" || s == "->" || s == "<->") = (Just 7)
+			  | (s == "!") = (Just 8)
+			  | otherwise = Nothing
 
--- split string into two parts [first psp, other]
-getPrefPsp (x : xs) = prefPsp 1 xs 
-
-sptFstBrck ("(":xs) = ([], "(":xs)
-sptFstBrck (a:[]) = ([], [a])
-sptFstBrck (x:xs) = (x : (fst res), snd res)
-            where res = sptFstBrck xs
-
+-- returns all operations of expr in format (bracket nesting, priority, id)
+getOpersOfExpr :: Expr -> [(Int, Int, Int)]
+getOpersOfExpr expr = getOpersHelper 0 0 expr 
+						where getOpersHelper bal id expr = case expr of 
+								[] -> []
+								("(":xs) -> getOpersHelper (succ bal) (succ id) xs 
+								(")":xs) -> getOpersHelper (pred bal) (succ id) xs 
+								(x:xs) -> case (getPriority x) of 
+									(Just p) -> (bal, p, id) : (getOpersHelper bal (succ id) xs)
+									otherwise -> getOpersHelper bal (succ id) xs 
+				    
+-- returns id of last operation of expr
+-- retunrs Nothing if expr contains extra parentheses around the edges, like "((p1))" 
+findLastOperation :: Expr -> Maybe Int  
+findLastOperation ar = case (sort $ getOpersOfExpr ar) of 
+							[] -> Nothing
+							((x,y,z):xs) -> if (x > 0) then Nothing
+											else Just z	
 -- formula constructor by name
+fmlConsByStr :: String -> (Formula -> Formula -> Formula)
 fmlConsByStr s = case s of 
 						"||" -> Or 
 						"&&" -> And 
 						"->" -> (:->)
 						"<->" -> (:<->:)
 
--- helper formula reader
-hprFmlRdr mas = case mas of 
-						[name] -> Atom name 
-						("!" : xs) -> Not $ hprFmlRdr xs  
-						("(" : xs) -> if (length sp == 0) then hprFmlRdr fp  
-							          else let cons = fmlConsByStr $ head sp in cons (hprFmlRdr fp) (hprFmlRdr $ tail sp)
-								where fp = fst $ getPrefPsp mas;
-									  sp = snd $ getPrefPsp mas; 	
-						otherwise -> let cons = fmlConsByStr $ last fp in cons (hprFmlRdr (init fp)) (hprFmlRdr sp)
-							where fp = fst $ sptFstBrck mas;
-								  sp = snd $ sptFstBrck mas;
-									       
-readFormula :: String -> Formula
-readFormula = hprFmlRdr . getWords 
-					  	
+-- formula parser
+hprFmlRdr :: Expr -> Formula
+hprFmlRdr expr = case expr of 
+					[name] -> Atom name 
+					otherwise -> case (findLastOperation expr) of 
+						Nothing -> hprFmlRdr (tail . init $ expr)
+						(Just pos) -> let oper = (expr !! pos) in 
+							if (oper == "!") then Not $ hprFmlRdr (drop (succ pos) expr)
+							else (fmlConsByStr oper) (hprFmlRdr (take pos expr)) (hprFmlRdr (drop (succ pos) expr))
+								  		
 instance Read Formula where 
-	readsPrec _ str = [(readFormula str, "")]
+	readsPrec _ str = [(hprFmlRdr . getWords $ str, "")]
