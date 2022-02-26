@@ -1,0 +1,41 @@
+Test suite hw1-unit-tests: RUNNING...
+Tests
+  simplify
+    Atom:                          OK
+    NOT Atom:                      OK
+    OR:                            OK
+    AND:                           OK
+    =>:                            OK
+    <=>:                           OK
+    complex =>:                    OK
+    EQ + =>:                       OK
+    AND + EQ:                      OK
+  NNF
+    Atom:                          OK
+    OR:                            OK
+    AND:                           OK
+    Double NOT:                    OK
+    Not Atom:                      OK
+    =>:                            OK
+    <=>:                           OK
+    De Morgan's law1:              OK
+    De Morgan's law2:              OK
+    De Morgan's + (NOT) inside OR: OK
+    De Morgan's + AND:             OK
+    Three agrs OR:                 OK
+    Double NOT + two brackets:     OK
+    So much NOT's even:            OK
+    So much NOT's odd:             OK
+  DNF
+    Atom:                          OK
+    Not Atom:                      OK
+    OR:                            OK
+    AND:                           OK
+    =>:                            OK
+    <=>:                           OK
+    AND right distributivity:      OK
+    AND left distributivity:       OK
+
+All 32 tests passed (0.00s)
+Test suite hw1-unit-tests: PASS
+Test suite logged to: dist/test/hw1-0.1.0.0-hw1-unit-tests.log
