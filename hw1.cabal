@@ -23,7 +23,6 @@ library source-library
 
 executable hw1-quick-check
   main-is: quickCheckTests.hs
-  type: exitcode-stdio-1.0  
   build-depends:       
       base >=4.12 && <4.13,
       QuickCheck >=2.14 && <2.15, 
